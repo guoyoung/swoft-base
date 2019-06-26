@@ -11,12 +11,12 @@
 LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s result: ' . $response);
 ```
 - LogWriter提供info，error，warning，pushlog等方法
-- 使用==除==pushlog方法外的方法记录日志时，==必须手动调用getLogId()方法获取当前请求的唯一logid==，并记录在日志中，方便后续链路追踪及查询
+- 使用==除pushlog方法外的方法记录日志时，必须手动调用getLogId()方法获取当前请求的唯一logid，并记录在日志中，方便后续链路追踪及查询
 - 建议使用pushlog记录日志，该方法无需关心logid，已经对该方法自动绑定了当前请求的logid
-- 所有方法记录日志的长度不能==超过==1024*1024字节，超过会自动截断，对于数组是转为json后再截断
+- 所有方法记录日志的长度不能超过1024*1024字节，超过会自动截断，对于数组是转为json后再截断
 ## 4.权限切面
-- 权限切面会针对所有==使用了@RequestMapping()注解==的方法，再调用该方法之前执行
-- 在权限切面判断权限，通过不用做任何返回，失败抛出==code为Constant::AUTH_FAIL_CODE的AuthException异常==，抛出异常后，会自动返回给调用方，返回结果为：
+- 权限切面会针对所有使用了@RequestMapping()注解的方法，再调用该方法之前执行
+- 在权限切面判断权限，通过不用做任何返回，失败抛出code为Constant::AUTH_FAIL_CODE的AuthException异常，抛出异常后，会自动返回给调用方，返回结果为：
 
 ```
 {
@@ -44,7 +44,7 @@ LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s re
 }
 ```
 ## 7.RequestBean
-- 现实现了针对当前请求的RequestBean，该bean的生命周期：==当前请求==，当前请求结束后，该bean自动销毁，包括里面保存的上下文（只有RequestBean的生命周期是当前请求，其他类型的bean的生命周期等于该应用进程的生命周期）
+- 现实现了针对当前请求的RequestBean，该bean的生命周期：当前请求，当前请求结束后，该bean自动销毁，包括里面保存的上下文（只有RequestBean的生命周期是当前请求，其他类型的bean的生命周期等于该应用进程的生命周期）
 - 该bean提供了set，get方法保存、读取上下文，要保存、读取上下文时请调用该方法
 - 提供requestBean()函数获取当前RequestBean，requestBean()->get获取当前请求上下文，requestBean()->set()保存当前请求上下文
 - 提供getLogId()函数获取当前请求的唯一请求id
@@ -73,7 +73,7 @@ LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s re
 ```
 ## 11.Model
 - 数据层包括Dao，Entity，Logic
-- Entity实体，每张表==必须==对应一个实体，可使用php bin/swoft entity:c [table]自动生成实体，生成实体自动保存在该文件夹
+- Entity实体，每张表必须对应一个实体，可使用php bin/swoft entity:c [table]自动生成实体，生成实体自动保存在该文件夹
 - Dao数据库操作层，通过对实体操作实现增删改查，如有特别复杂的业务，才可使用原生sql，其他情况统一使用实体
 > 通过实体查询的数据返回的都是该实体，可通过get/set方法获取/设置数据
 - Logic逻辑处理层，controller先调用该层，进行逻辑处理，拼接数据等，然后调用Dao层增删改查数据
@@ -82,7 +82,7 @@ LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s re
 - 协程任务：任务开始后会进行协程切换，让出时间片，执行其他协程，当任务完成后，在回到该协程，继续向下执行。使用范围：对任务返回结果强依赖的
 - 异步任务：任务开始后直接向下执行，不会进行协程切换。适用范围：对结果不依赖的请求。异步任务会在执行完成后，触发TaskEvent::FINISH事件，需要监听该事件，如有需要，可以进行后续处理
 ## 13.Utils
-- 实现httpClient，所有请求有需要http请求的，==必须==使用该httpClient
+- 实现httpClient，所有请求有需要http请求的，必须使用该httpClient
 - httpClient为单例，获取httpClient
 
 ```
