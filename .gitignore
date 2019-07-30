@@ -12,3 +12,4 @@ temp/
 .phpstorm.meta.php
 .DS_Store
 public/devtool/
+vendor

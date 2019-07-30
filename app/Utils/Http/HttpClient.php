@@ -8,6 +8,8 @@ use App\Log\LogWriter;
 use Swlib\Http\ContentType;
 use Swlib\Http\Exception\HttpExceptionMask;
 use Swlib\Saber;
+use Swoft\Co;
+use Swoft\Log\Helper\CLog;
 
 /**
  * 使用说明：
@@ -65,26 +67,29 @@ class HttpClient
      * 单个请求
      * 默认content-type: application/json
      * 默认超时60s
-     * @param null $data      请求数据
-     * @param array $options  请求设置
+     * @param null $data 请求数据
+     * @param array $options 请求设置
+     * @param bool $isCLog
+     * @param bool $isRaw
+     * @param $isLog
      * @return bool|Saber\Request|Saber\Response|array
      * @throws \ReflectionException
      * @throws \Swoft\Bean\Exception\ContainerException
      */
-    public function request($data = null, $options = [])
+    public function request($data = null, $options = [], $isCLog = false, $isRaw = false, $isLog = true)
     {
         if (!$options['base_uri'] || !$options['uri']) {
             return false;
         }
 
-        $saber = Saber::create([
-            'use_pool' => Constant::HTTP_CLIENT_POOL
-        ]);
-
+        $saber = Saber::create();
         $saber->exceptionReport(HttpExceptionMask::E_ALL);
         $uri = $options['uri'] ?? '';
-        $saber->exceptionHandle(function (\Exception $e) use ($uri) {
-            LogWriter::error('log id: ' . getLogId() . ' request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
+        $saber->exceptionHandle(function (\Exception $e) use ($uri, $isCLog, $isLog) {
+            if ($isLog) {
+                $isCLog ? CLog::error('request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage())
+                    : LogWriter::error('log id: ' . getLogId() . ' request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
+            }
         });
 
         !isset($options['method']) && $options['method'] = 'GET';
@@ -99,17 +104,34 @@ class HttpClient
             $options['timeout'] = Constant::HTTP_TIMEOUT;
         }
 
-        LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s params: ' . json_encode($data));
+        if (!isset($options['use_pool'])) {
+            $options['use_pool'] = Constant::HTTP_CLIENT_POOL;
+        }
+
+        if ($isLog) {
+            $isCLog ? CLog::info('request ' . $options['uri'] . '\'s params: ' . json_encode($data)) :
+                LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s params: ' . json_encode($data));
+        }
         $response = $saber->request($options);
-        LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s time: ' . $response->time);
-        LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s result: ' . $response);
-        $return = [];
-        if (false !== strpos($response->getHeaderLine('Content-Type'), ContentType::JSON)) {
+        if ($isLog) {
+            $isCLog ? CLog::info('request ' . $options['uri'] . '\'s time: ' . $response->time) :
+                LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s time: ' . $response->time);
+        }
+        if ($isLog) {
+            $isCLog ? CLog::info('request ' . $options['uri'] . '\'s result: ' . $response) :
+                LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s result: ' . $response);
+        }
+        $return = null;
+        if ($isRaw) {
+            $return = $response;
+        } elseif (false !== strpos($response->getHeaderLine('Content-Type'), ContentType::JSON)) {
             $return = $response->getParsedJsonArray();
         } elseif (false !== strpos($response->getHeaderLine('Content-Type'), ContentType::XML)) {
             $return = $response->getParsedXmlArray();
         } elseif (false !== strpos($response->getHeaderLine('Content-Type'), ContentType::HTML)) {
             $return = $response->getParsedDomObject();
+        } else {
+            $return = $response;
         }
         $response = null;
         unset($response);
@@ -134,7 +156,7 @@ class HttpClient
      * @throws \ReflectionException
      * @throws \Swoft\Bean\Exception\ContainerException
      */
-    public function multi( array $requests, $commonOptions = [], $baseURi = null)
+    public function multi(array $requests, $commonOptions = [], $baseURi = null)
     {
         if (count($requests) == 0 || count($requests) > Constant::HTTP_MAX_MULTI_REQUEST_COUNT) {
             return false;
@@ -147,6 +169,15 @@ class HttpClient
             if (!isset($request['method']) || !isset($request['uri'])) {
                 return false;
             }
+            if (!$baseURi && !isset($request['base_uri'])) {
+                return false;
+            }
+            if (!isset($request['base_uri'])) {
+                $request['base_uri'] = $baseURi;
+            }
+            if (!isset($request['use_pool'])) {
+                $request['use_pool'] = Constant::HTTP_CLIENT_POOL;
+            }
             $new[] = $request;
             $requestsKey[] = $key;
             $contentType = '';
@@ -156,10 +187,7 @@ class HttpClient
             $requestsContentType[$key] = $contentType;
         }
 
-        $option['use_pool'] = Constant::HTTP_CLIENT_POOL;
-        null !== $baseURi && $option['base_uri'] = $baseURi;
-
-        $saber = Saber::create($option);
+        $saber = Saber::create();
         $saber->exceptionReport(HttpExceptionMask::E_ALL);
         $saber->exceptionHandle(function (\Exception $e) {
             LogWriter::error('log id: ' . getLogId() . ' multi requests\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
@@ -175,20 +203,12 @@ class HttpClient
 
         LogWriter::info('logid: ' . getLogId() . ' multi requests\'s params: ' . json_encode($requests));
         $responses = $saber->requests($new, $commonOptions);
-        LogWriter::info('logid: ' . getLogId() . ' multi requests\'s time: ' . $responses->time);
-        LogWriter::info('logid: ' . getLogId() . ' multi requests\'s results: ' . $responses);
+        LogWriter::info('logid: ' . getLogId() . ' multi requests\'s time: ' . $responses->time .
+            ' | results: ' . $responses);
         $returns = [];
         foreach ($responses as $key => $val) {
             $trueKey = $requestsKey[$key];
-            if (false !== strpos($val->getHeaderLine('Content-Type'), ContentType::JSON)) {
-                $returns[$trueKey] = $val->getParsedJsonArray();
-            } elseif (false !== strpos($val->getHeaderLine('Content-Type'), ContentType::XML)) {
-                $returns[$trueKey] = $val->getParsedXmlArray();
-            } elseif (false !== strpos($val->getHeaderLine('Content-Type'), ContentType::HTML)) {
-                $returns[$trueKey] = $val->getParsedDomObject();
-            } else {
-                $returns[$trueKey] = $val;
-            }
+            $returns[$trueKey] = $val;
         }
         $responses = null;
         unset($responses);

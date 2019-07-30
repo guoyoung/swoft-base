@@ -1,1 +1,0 @@
-# Swoft Bean Component
