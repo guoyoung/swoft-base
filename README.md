@@ -11,7 +11,7 @@
 LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s result: ' . $response);
 ```
 - LogWriter提供info，error，warning，pushlog等方法
-- 使用==除pushlog方法外的方法记录日志时，必须手动调用getLogId()方法获取当前请求的唯一logid，并记录在日志中，方便后续链路追踪及查询
+- 使用除pushlog方法外的方法记录日志时，必须手动调用getLogId()方法获取当前请求的唯一logid，并记录在日志中，方便后续链路追踪及查询
 - 建议使用pushlog记录日志，该方法无需关心logid，已经对该方法自动绑定了当前请求的logid
 - 所有方法记录日志的长度不能超过1024*1024字节，超过会自动截断，对于数组是转为json后再截断
 ## 4.权限切面
