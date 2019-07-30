@@ -3,6 +3,7 @@
 
 namespace App\Log;
 
+use http\Exception\UnexpectedValueException;
 use Swoft\Log\Handler\FileHandler;
 
 /**
@@ -13,13 +14,43 @@ use Swoft\Log\Handler\FileHandler;
  */
 class LogHandler extends FileHandler
 {
-    public function init(): void
+    private $firstTime = true;
+
+    public function write(array $records): void
     {
-        $date = substr($this->logFile, 13, 8);
+        $len = strlen(alias('@runtime/log/'));
+        $date = substr($this->logFile, $len, 8);
         if ($date != date('Ymd')) {
             $this->logFile = str_replace($date, date('Ymd'), $this->logFile);
+            $this->createDir();
         }
-        $this->logFile = str_replace('.', date('H') . '.', $this->logFile);
-        parent::init();
+        if ($this->firstTime) {
+            $this->logFile = str_replace('.', date('H') . '.', $this->logFile);
+            $this->firstTime = false;
+        } else {
+            $hour = substr($this->logFile, -6, 2);
+            if ($hour != date('H')) {
+                $this->logFile = str_replace($hour . '.', date('H') . '.', $this->logFile);
+            }
+        }
+
+        parent::write($records);
+    }
+
+    /**
+     * Create dir
+     */
+    private function createDir(): void
+    {
+        $logDir = dirname($this->logFile);
+
+        if ($logDir !== null && !is_dir($logDir)) {
+            $status = mkdir($logDir, 0777, true);
+            if ($status === false) {
+                throw new UnexpectedValueException(
+                    sprintf('There is no existing directory at "%s" and its not buildable: ', $logDir)
+                );
+            }
+        }
     }
 }
