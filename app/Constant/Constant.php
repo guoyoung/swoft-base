@@ -19,7 +19,7 @@ class Constant
     /**
      * http连接池最大数量
      */
-    const HTTP_CLIENT_POOL = 100;
+    const HTTP_CLIENT_POOL = false;
 
     /**
      * 一次最大发送并发请求数量
@@ -35,11 +35,6 @@ class Constant
      * swoole.log
      */
     const LOG_FILE = '@runtime/log/swoole/swoole.log';
-
-    /**
-     * 参数过滤项
-     */
-    const FILTER = ['\'', '"', '|', '$', '#'];
 
     /**
      * 鉴权失败异常错误码

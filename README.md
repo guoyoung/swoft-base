@@ -45,14 +45,11 @@ LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s re
 ```
 ## 7.RequestBean
 - 现实现了针对当前请求的RequestBean，该bean的生命周期：当前请求，当前请求结束后，该bean自动销毁，包括里面保存的上下文（只有RequestBean的生命周期是当前请求，其他类型的bean的生命周期等于该应用进程的生命周期）
-- 该bean提供了set，get方法保存、读取上下文，要保存、读取上下文时请调用该方法
-- 提供requestBean()函数获取当前RequestBean，requestBean()->get获取当前请求上下文，requestBean()->set()保存当前请求上下文
 - 提供getLogId()函数获取当前请求的唯一请求id
 > 禁止使用static定义静态变量来保存数据，不要定义类的属性用来保存动态数据等，这些操作都可能造成数据混乱，要保存数据统一使用上下文保存，上下文都是绑定了当前请求的协程id的（非常重要）
 ## 8.Controller
 - 所有新建控制器必须继承BaseController
 - 所有结果返回必须通过$this->json()返回
-- BaseController提供paramsFilter()方法过滤参数的特殊字符
 - 所有新建controller必须在类上使用@Controller注解，所有提供给对外的接口，必须在方法下使用@RequestMapping注解
 - 建议controller只做简单参数判断，所有逻辑处理请在Model/Logic中处理
 - 如controller有特殊中间件要求，可在Http/Middleware文件夹中实现，对controller使用@Middleware注解该中间件即可
@@ -95,14 +92,18 @@ $http = HttpClient::getInstance();
 - base.php所有环境通用配置
 - 配置文件通过函数config()读取
 - bean.php为系统，连接池等配置，也包括一些swoole的配置，如每个环境不同，可根据config目录下的四个目录来配置，再在这个文件读取配置，达到不同环境配置不同的目的
-## 15.严禁使用
+## 15.注意事项
+- 所有发生io请求的地方，都会发生协程切换（包括发起http请求），这时注意保存io切换时的上下文，以便io切换回来时还原当前请求上下文（非常重要）
+- 上下文可以通过context()->set($key, $context)保存，context()->get($key)获取，$key尽量业务相关，防止与框架上下文$key相同
+## 16.严禁使用
 - 禁止die()、exit()函数
 - 禁止使用$_GET、$_POST、$GLOBALS、$_SERVER、$_FILES、$_COOKIE、$_SESSION、$_REQUEST、$_ENV等超全局变量
 - 谨慎使用global、static关键字
-## 16.IDE
+- 禁止使用引用传递参数，包括函数传参，循环等，禁止函数引用
+## 17.IDE
 - 如使用PHPstorm，可以安装PHP Annotations插件
 - 注意@var的使用，在注解或其他变量说明时，可通过@var来制定变量属性，方便IDE代码提示
-## 17.部署及运行
+## 18.部署及运行
 - docker镜像：直接运行命令：docker pull ccr.ccs.tencentyun.com/young/swoole-php:swoole4.4.2 拉取镜像
 - 启动容器：docker run -d --name $name -p $port1:80 -p $port2:22 -v $path:/var/www/swoft ccr.ccs.tencentyun.com/young/swoole-php:swoole4.4.2 启动容器
 > 其中，$name为你容器名称，$port1,$port2分别为你宿主机暴露的http端口和ssh端口，$path为你当前框架的完整目录
