@@ -52,13 +52,10 @@ class TestController extends BaseController
      * @RequestMapping()
      * @param Request $request
      * @return \Swoft\Http\Message\Response|\Swoft\WebSocket\Server\Message\Response
-     * @throws \ReflectionException
-     * @throws \Swoft\Bean\Exception\ContainerException
      */
     public function db(Request $request)
     {
-        $content = $request->getBody();
-        $content = json_decode($content, true);
+        $content = $request->getParsedBody();
         $result = $this->user->getUser($content['id'] ?? '');
         return $this->json($result);
     }
