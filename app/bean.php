@@ -19,27 +19,18 @@ return  [
         'class'     => \App\Log\LogHandler::class,
         'logFile'   => '@runtime/log/' . date('Ymd') . '/notice.log',
         'formatter' => bean('lineFormatter'),
-        'levels'    => [
-            \Swoft\Log\Logger::NOTICE,
-            \Swoft\Log\Logger::INFO,
-            \Swoft\Log\Logger::DEBUG,
-            \Swoft\Log\Logger::TRACE,
-        ],
+        'levels'    => 'notice,info,debug,trace',
     ],
     'applicationHandler' => [
         'class'     => \App\Log\LogHandler::class,
         'logFile'   => '@runtime/log/' . date('Ymd') . '/error.log',
         'formatter' => bean('lineFormatter'),
-        'levels'    => [
-            \Swoft\Log\Logger::ERROR,
-            \Swoft\Log\Logger::WARNING,
-        ],
+        'levels'    => 'error,warning',
     ],
     'logger'     => [
         'class'        => \App\Log\Logger::class,
         'flushRequest' => true,
         'enable'       => true,
-        'json'         => false,
         'handlers'     => [
             'application' => bean('applicationHandler'),
             'notice'      => bean('noticeHandler'),

@@ -3,11 +3,9 @@
 namespace App\Http\Controller;
 
 use App\Http\Base\BaseController;
-use App\Model\Entity\User;
 use App\Model\Logic\UserLogic;
 use App\Utils\Http\HttpClient;
 use Swoft\Bean\Annotation\Mapping\Inject;
-use Swoft\Db\DB;
 use Swoft\Http\Message\Request;
 use Swoft\Http\Server\Annotation\Mapping\Controller;
 use Swoft\Http\Server\Annotation\Mapping\RequestMapping;
@@ -36,9 +34,12 @@ class TestController extends BaseController
             'key3' => ['method' => 'post', 'uri' => '/service/dispatch?node=1001002', 'data' => ['test' => 3]],
         ],[
             'headers' => [
-                'token' => 'eyJhbGciOiJIUzUxMiJ9.eyJjcmVhdGVkIjoxNTYwODQ0MDI5ODA3LCJleHAiOjQxMDI0NDg0NjAsInVzZXJuYW1lIjoibGljaGFvMSJ9.eCOfkYWJPRqXRPc6hAnoondwTaONygikU8r5G_IlfeivcD5bHnUhdCmwZp3BHYjNeGwDCIyaHsO6AX0Ltg1oSQ'
+                'token' => 'eyJhbGciOiJIUzUxMiJ9.eyJjcmVhdGVkIjoxNTY0NTU4NDQwNTcwLCJleHAiOjQxMDI0NDg0NjAsInVzZXJuYW1lIjoibGljaGFvMSJ9.0naisXPgluXeIJCw2fycPscB-k7a1UMXvxDxgkmqO3PX0h7ytafswa7DeOqdm9vfqjrmJz-VaVyrKIe73qGEFw'
             ]
         ], 'http://10.200.81.99:8081');
+        array_walk($res, function (&$val) {
+            $val = $val->getParsedJsonArray();
+        });
         return $this->json($res);
     }
 
