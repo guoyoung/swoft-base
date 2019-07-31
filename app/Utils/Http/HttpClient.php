@@ -69,14 +69,13 @@ class HttpClient
      * 默认超时60s
      * @param null $data 请求数据
      * @param array $options 请求设置
-     * @param bool $isCLog
      * @param bool $isRaw
      * @param $isLog
      * @return bool|Saber\Request|Saber\Response|array
      * @throws \ReflectionException
      * @throws \Swoft\Bean\Exception\ContainerException
      */
-    public function request($data = null, $options = [], $isCLog = false, $isRaw = false, $isLog = true)
+    public function request($data = null, $options = [], $isRaw = false, $isLog = true)
     {
         if (!$options['base_uri'] || !$options['uri']) {
             return false;
@@ -85,10 +84,9 @@ class HttpClient
         $saber = Saber::create();
         $saber->exceptionReport(HttpExceptionMask::E_ALL);
         $uri = $options['uri'] ?? '';
-        $saber->exceptionHandle(function (\Exception $e) use ($uri, $isCLog, $isLog) {
+        $saber->exceptionHandle(function (\Exception $e) use ($uri, $isLog) {
             if ($isLog) {
-                $isCLog ? CLog::error('request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage())
-                    : LogWriter::error('log id: ' . getLogId() . ' request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
+                LogWriter::error('log id: ' . getLogId() . ' request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
             }
         });
 
@@ -109,17 +107,11 @@ class HttpClient
         }
 
         if ($isLog) {
-            $isCLog ? CLog::info('request ' . $options['uri'] . '\'s params: ' . json_encode($data)) :
-                LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s params: ' . json_encode($data));
+            LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s params: ' . json_encode($data));
         }
         $response = $saber->request($options);
         if ($isLog) {
-            $isCLog ? CLog::info('request ' . $options['uri'] . '\'s time: ' . $response->time) :
-                LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s time: ' . $response->time);
-        }
-        if ($isLog) {
-            $isCLog ? CLog::info('request ' . $options['uri'] . '\'s result: ' . $response) :
-                LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s result: ' . $response);
+            LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s time: ' . $response->time . ' | result: ' . $response);
         }
         $return = null;
         if ($isRaw) {
