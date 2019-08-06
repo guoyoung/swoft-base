@@ -8,8 +8,6 @@ use App\Log\LogWriter;
 use Swlib\Http\ContentType;
 use Swlib\Http\Exception\HttpExceptionMask;
 use Swlib\Saber;
-use Swoft\Co;
-use Swoft\Log\Helper\CLog;
 
 /**
  * 使用说明：
@@ -86,11 +84,13 @@ class HttpClient
         $uri = $options['uri'] ?? '';
         $saber->exceptionHandle(function (\Exception $e) use ($uri, $isLog) {
             if ($isLog) {
-                LogWriter::error('log id: ' . getLogId() . ' request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
+                LogWriter::error('request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
             }
         });
 
         !isset($options['method']) && $options['method'] = 'GET';
+
+        $options['headers']['X-Log-Id'] = getLogId();
 
         null !== $data && $options['data'] = $data;
 
@@ -107,11 +107,11 @@ class HttpClient
         }
 
         if ($isLog) {
-            LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s params: ' . json_encode($data));
+            LogWriter::info('request ' . $options['uri'] . '\'s params: ' . json_encode($data));
         }
         $response = $saber->request($options);
         if ($isLog) {
-            LogWriter::info('logid: ' . getLogId() . ' request ' . $options['uri'] . '\'s time: ' . $response->time . ' | result: ' . $response);
+            LogWriter::info('request ' . $options['uri'] . '\'s time: ' . $response->time . ' | result: ' . $response);
         }
         $return = null;
         if ($isRaw) {
@@ -182,21 +182,22 @@ class HttpClient
         $saber = Saber::create();
         $saber->exceptionReport(HttpExceptionMask::E_ALL);
         $saber->exceptionHandle(function (\Exception $e) {
-            LogWriter::error('log id: ' . getLogId() . ' multi requests\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
+            LogWriter::error('multi requests\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
         });
 
         if (!isset($commonOptions['content-type']) || !isset($commonOptions['headers']['content-type']) || !isset($commonOptions['headers']['Content-Type'])) {
             $commonOptions['content-type'] = ContentType::JSON;
         }
 
+        $commonOptions['headers']['X-Log-Id'] = getLogId();
+
         if (!isset($commonOptions['timeout'])) {
             $commonOptions['timeout'] = Constant::HTTP_TIMEOUT;
         }
 
-        LogWriter::info('logid: ' . getLogId() . ' multi requests\'s params: ' . json_encode($requests));
+        LogWriter::info('multi requests\'s params: ' . json_encode($requests));
         $responses = $saber->requests($new, $commonOptions);
-        LogWriter::info('logid: ' . getLogId() . ' multi requests\'s time: ' . $responses->time .
-            ' | results: ' . $responses);
+        LogWriter::info('multi requests\'s time: ' . $responses->time . ' | results: ' . $responses);
         $returns = [];
         foreach ($responses as $key => $val) {
             $trueKey = $requestsKey[$key];

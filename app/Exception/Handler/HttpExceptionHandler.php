@@ -39,7 +39,7 @@ class HttpExceptionHandler extends AbstractHttpErrorHandler
             'trace' => $e->getTraceAsString(),
         ];
 
-        LogWriter::error('logid: ' . getLogId() . ' occurred exception: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
+        LogWriter::error('exception occurred: ' . json_encode($data, JSON_UNESCAPED_UNICODE));
 
         if (!APP_DEBUG) {
             $data = \App\Constant\Response::EXCEPTION_RESPONSE;

@@ -29,8 +29,8 @@ class CorsMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        // 记录当前请求log id
-        LogWriter::pushlog('logid', getLogId());
+        // 设置全局traceid
+        \context()->set('traceid', getLogId());
         LogWriter::pushlog('request-method', $request->getMethod());
         $allowHeaders = $request->getHeaderLine("Access-Control-Request-Headers");
         if ('OPTIONS' === $request->getMethod()) {
