@@ -94,6 +94,7 @@ $http = HttpClient::getInstance();
 ## 15.注意事项
 - 所有发生io请求的地方，都会发生协程切换（包括发起http请求），这时注意保存io切换时的上下文，以便io切换回来时还原当前请求上下文（非常重要）
 - 上下文可以通过context()->set($key, $context)保存，context()->get($key)获取，$key尽量业务相关，防止与框架上下文$key相同
+- 框架内需要手动创建协程必须使用sgo()创建（非常重要）
 ## 16.严禁使用
 - 禁止die()、exit()函数
 - 禁止使用$_GET、$_POST、$GLOBALS、$_SERVER、$_FILES、$_COOKIE、$_SESSION、$_REQUEST、$_ENV等超全局变量
