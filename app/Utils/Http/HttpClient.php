@@ -68,12 +68,11 @@ class HttpClient
      * @param null $data 请求数据
      * @param array $options 请求设置
      * @param bool $isRaw
-     * @param $isLog
      * @return bool|Saber\Request|Saber\Response|array
      * @throws \ReflectionException
      * @throws \Swoft\Bean\Exception\ContainerException
      */
-    public function request($data = null, $options = [], $isRaw = false, $isLog = true)
+    public function request($data = null, $options = [], $isRaw = false)
     {
         if (!$options['base_uri'] || !$options['uri']) {
             return false;
@@ -82,10 +81,8 @@ class HttpClient
         $saber = Saber::create();
         $saber->exceptionReport(HttpExceptionMask::E_ALL);
         $uri = $options['uri'] ?? '';
-        $saber->exceptionHandle(function (\Exception $e) use ($uri, $isLog) {
-            if ($isLog) {
-                LogWriter::error('request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
-            }
+        $saber->exceptionHandle(function (\Exception $e) use ($uri) {
+            LogWriter::error('request ' . $uri . '\'s exception' . get_class($e) . ' occurred, exception message: ' . $e->getMessage());
         });
 
         !isset($options['method']) && $options['method'] = 'GET';
@@ -106,13 +103,8 @@ class HttpClient
             $options['use_pool'] = Constant::HTTP_CLIENT_POOL;
         }
 
-        if ($isLog) {
-            LogWriter::info('request ' . $options['uri'] . '\'s params: ' . json_encode($data));
-        }
         $response = $saber->request($options);
-        if ($isLog) {
-            LogWriter::info('request ' . $options['uri'] . '\'s time: ' . $response->time . ' | result: ' . $response);
-        }
+
         $return = null;
         if ($isRaw) {
             $return = $response;
@@ -195,9 +187,7 @@ class HttpClient
             $commonOptions['timeout'] = Constant::HTTP_TIMEOUT;
         }
 
-        LogWriter::info('multi requests\'s params: ' . json_encode($requests));
         $responses = $saber->requests($new, $commonOptions);
-        LogWriter::info('multi requests\'s time: ' . $responses->time . ' | results: ' . $responses);
         $returns = [];
         foreach ($responses as $key => $val) {
             $trueKey = $requestsKey[$key];
