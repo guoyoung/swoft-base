@@ -85,6 +85,7 @@ LogWriter::info('request ' . $options['uri'] . '\'s result: ' . $response);
 $http = HttpClient::getInstance();
 ```
 - httpClient提供两个方法：request（单个请求）和multi（多个请求，并发），具体适用方法查看类注释
+- httpClient向对端请求的时候默认会添加header头：X-Log-Id，与日志中的traceid对应
 ## 14.配置
 - config目录编写通用配置
 - config目录下有dev,test,pre,pro四个目录，对应开发，测试，预发布，正式环境，同过.env文件ENV = dev|test|pre|pro切换，各个目录下的配置在不同环境互不影响
