@@ -23,7 +23,7 @@ class RequestBean
      */
     public function getLogId()
     {
-        null === $this->logId && $this->logId = substr(md5(Co::tid() . microtime()), 0, 13);
+        null === $this->logId && $this->logId = substr(md5(Co::tid() . microtime() . rand(100000, 999999)), 0, 13);
         return $this->logId;
     }
 }
