@@ -44,7 +44,7 @@ class BaseController
      */
     public function response($data = [], $status = 200, $type = ContentType::JSON)
     {
-        $response = Context::mustGet()->getResponse();
+        $response = \context()->getResponse();
         return $response->withData($data)->withStatus($status)->withContentType($type);
     }
 }
