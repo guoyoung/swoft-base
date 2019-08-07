@@ -57,6 +57,8 @@ return  [
             'package_max_length'    => 8 * 1024 * 1024,
             'buffer_output_size'    => 64 * 1024 * 1024,
             'max_coroutine'         => 10000,
+            'heartbeat_idle_time'   => 600,
+            'heartbeat_check_interval' => 60,
         ]
     ],
     'httpDispatcher' => [
