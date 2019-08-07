@@ -23,6 +23,7 @@ class BaseController
      * @param int $statusCode http状态码
      * @param string $type
      * @return \Swoft\Http\Message\Response|\Swoft\WebSocket\Server\Message\Response
+     * @throws \Swoft\Exception\SwoftException
      */
     public function json($data = [], $code = 0, $status = true, $statusCode = 200, $type = ContentType::JSON)
     {
@@ -41,6 +42,7 @@ class BaseController
      * @param int $status
      * @param string $type
      * @return \Swoft\Http\Message\Response|\Swoft\WebSocket\Server\Message\Response
+     * @throws \Swoft\Exception\SwoftException
      */
     public function response($data = [], $status = 200, $type = ContentType::JSON)
     {

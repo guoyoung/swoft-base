@@ -24,6 +24,7 @@ class TestController extends BaseController
      * @return \Swoft\Http\Message\Response|\Swoft\WebSocket\Server\Message\Response
      * @throws \ReflectionException
      * @throws \Swoft\Bean\Exception\ContainerException
+     * @throws \Swoft\Exception\SwoftException
      */
     public function http()
     {
@@ -53,6 +54,7 @@ class TestController extends BaseController
      * @RequestMapping()
      * @param Request $request
      * @return \Swoft\Http\Message\Response|\Swoft\WebSocket\Server\Message\Response
+     * @throws \Swoft\Exception\SwoftException
      */
     public function db(Request $request)
     {
@@ -66,9 +68,11 @@ class TestController extends BaseController
      * @var Pool
      */
     private $redis;
+
     /**
      * @RequestMapping()
      * @return \Swoft\Http\Message\Response|\Swoft\WebSocket\Server\Message\Response
+     * @throws \Swoft\Exception\SwoftException
      */
     public function redis()
     {
