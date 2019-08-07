@@ -1,7 +1,7 @@
 # 规范说明
 ## 1.环境要求
 - PHP版本：7.2.20+
-- swoole版本：4.4.2+
+- swoole版本：4.4.3+
 ## 2.Response Header
 - 返回的header头都会包含：X-Log-Id，该id为当前请求的唯一标记，通过该id可以方便的查询该请求的日志
 ## 3.日志
@@ -105,7 +105,7 @@ $http = HttpClient::getInstance();
 - 如使用PHPstorm，可以安装PHP Annotations插件
 - 注意@var的使用，在注解或其他变量说明时，可通过@var来制定变量属性，方便IDE代码提示
 ## 18.部署及运行
-- docker镜像：直接运行命令：docker pull ccr.ccs.tencentyun.com/young/swoole-php:swoole4.4.2 拉取镜像
+- docker镜像：直接运行命令：docker pull ccr.ccs.tencentyun.com/young/swoole-php:swoole4.4.3 拉取镜像
 - 启动容器：docker run -d --name $name -p $port1:80 -p $port2:22 -v $path:/var/www/swoft ccr.ccs.tencentyun.com/young/swoole-php:swoole4.4.2 启动容器
 > 其中，$name为你容器名称，$port1,$port2分别为你宿主机暴露的http端口和ssh端口，$path为你当前框架的完整目录
 - 通过ssh进入刚启动的容器，账号：root,密码：123456，进入容器后，执行命令：php /var/www/swoft/bin/swoft http:start启动即可
