@@ -25,6 +25,7 @@ class CorsMiddleware implements MiddlewareInterface
      * @return ResponseInterface
      * @throws \ReflectionException
      * @throws \Swoft\Bean\Exception\ContainerException
+     * @throws \Swoft\Exception\SwoftException
      * @inheritdoc
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
