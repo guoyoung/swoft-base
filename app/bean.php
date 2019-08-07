@@ -66,6 +66,9 @@ return  [
         'middlewares' => [
             \App\Middleware\CorsMiddleware::class,
         ],
+        'afterMiddlewares' => [
+            \Swoft\Http\Server\Middleware\ValidatorMiddleware::class
+        ]
     ],
 
     // 数据库连接池配置,更多配置项查看官方文档
