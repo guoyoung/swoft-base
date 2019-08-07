@@ -13,6 +13,12 @@ use Swoft\SwoftApplication;
  */
 class Application extends SwoftApplication
 {
+    protected function beforeInit(): void
+    {
+        parent::beforeInit();
+        date_default_timezone_set('Asia/Shanghai');
+    }
+
 //    public function getCLoggerConfig(): array
 //    {
 //        $config = parent::getCLoggerConfig();
