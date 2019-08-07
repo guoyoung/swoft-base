@@ -47,8 +47,8 @@ return  [
         ],
         /* @see HttpServer::$setting */
         'setting'  => [
-            'task_worker_num'       => 1,
-            'worker_num'            => 2,
+//            'task_worker_num'       => 1,
+            'worker_num'            => config('setting.worker_num', 2),
             'task_enable_coroutine' => true,
             'reload_async'          => true,
             'log_file'              => alias(\App\Constant\Constant::LOG_FILE),
