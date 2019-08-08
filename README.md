@@ -110,3 +110,7 @@ $http = HttpClient::getInstance();
 - 启动容器：docker run -d --name $name -p $port1:80 -p $port2:22 -v $path:/var/www/swoft ccr.ccs.tencentyun.com/young/swoole-php:swoole4.4.2 启动容器
 > 其中，$name为你容器名称，$port1,$port2分别为你宿主机暴露的http端口和ssh端口，$path为你当前框架的完整目录
 - 通过ssh进入刚启动的容器，账号：root,密码：123456，进入容器后，执行命令：php /var/www/swoft/bin/swoft http:start启动即可
+# 补充
+## 1.eureka sidecar
+- 基于swoft2.0.5+实现eureka sidecar，可将服务注册到eureka
+- 通过 composer require gyoung/eureka-sidecar 获取，具体使用规则查看README
