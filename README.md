@@ -95,8 +95,7 @@ $http = HttpClient::getInstance();
 - bean.php为系统，连接池等配置，也包括一些swoole的配置，如每个环境不同，可根据config目录下的四个目录来配置，再在这个文件读取配置，达到不同环境配置不同的目的
 ## 15.注意事项
 - 所有发生io请求的地方，都会发生协程切换（包括发起http请求），这时注意保存io切换时的上下文，以便io切换回来时还原当前请求上下文（非常重要）
-- 上下文可以通过context()->set($key, $context)保存，context()->get($key)获取，$key尽量业务相关，防止与框架上下文$key相同，但使用完成后必须手动主动释放自己保存的上下文
-- 建议通过requestBean()->set($key, $context)保存, requestBean()->get($key)获取, 用这个方式保存的上下文不用手动释放，会随当前请求自动释放
+- 上下文可以通过context()->set($key, $context)保存，context()->get($key)获取，$key尽量业务相关，防止与框架上下文$key相同
 - 框架内需要手动创建协程必须使用sgo()创建（非常重要）
 ## 16.严禁使用
 - 禁止die()、exit()函数
