@@ -13,8 +13,8 @@ LogWriter::info('request ' . $options['uri'] . '\'s result: ' . $response);
 - LogWriter提供info，error，warning，pushlog等方法
 - 所有方法默认记录traceid，与header头X-Log-Id对应，方便后续链路追踪及查询
 - 所有方法记录日志的长度不能超过1024*1024字节，超过会自动截断，对于数组是转为json后再截断
-## 4.权限切面
-- 权限切面会针对所有使用了@RequestMapping()注解的方法，再调用该方法之前执行
+## 4.切面
+- 先提供权限切面，权限切面会针对所有使用了@RequestMapping()注解的方法，再调用该方法之前执行
 - 在权限切面判断权限，通过不用做任何返回，失败抛出code为Constant::AUTH_FAIL_CODE的AuthException异常，抛出异常后，会自动返回给调用方，返回结果为：
 
 ```
