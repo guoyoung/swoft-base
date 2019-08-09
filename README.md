@@ -14,7 +14,7 @@ LogWriter::info('request ' . $options['uri'] . '\'s result: ' . $response);
 - 所有方法默认记录traceid，与header头X-Log-Id对应，方便后续链路追踪及查询
 - 所有方法记录日志的长度不能超过1024*1024字节，超过会自动截断，对于数组是转为json后再截断
 ## 4.切面
-- 先提供权限切面，权限切面会针对所有使用了@RequestMapping()注解的方法，再调用该方法之前执行
+- 现提供权限切面，权限切面会针对所有使用了@RequestMapping()注解的方法，再调用该方法之前执行
 - 在权限切面判断权限，通过不用做任何返回，失败抛出code为Constant::AUTH_FAIL_CODE的AuthException异常，抛出异常后，会自动返回给调用方，返回结果为：
 
 ```
@@ -73,7 +73,7 @@ LogWriter::info('request ' . $options['uri'] . '\'s result: ' . $response);
 - Dao数据库操作层，通过对实体操作实现增删改查，如有特别复杂的业务，才可使用原生sql，其他情况统一使用实体
 > 通过实体查询的数据返回的都是该实体，可通过get/set方法获取/设置数据
 - Logic逻辑处理层，controller先调用该层，进行逻辑处理，拼接数据等，然后调用Dao层增删改查数据
-## 12.Task（不建议使用）
+## 12.Task(不建议使用)
 - Task分为协程任务和异步任务
 - 协程任务：任务开始后会进行协程切换，让出时间片，执行其他协程，当任务完成后，在回到该协程，继续向下执行。使用范围：对任务返回结果强依赖的
 - 异步任务：任务开始后直接向下执行，不会进行协程切换。适用范围：对结果不依赖的请求。异步任务会在执行完成后，触发TaskEvent::FINISH事件，需要监听该事件，如有需要，可以进行后续处理
@@ -95,7 +95,8 @@ $http = HttpClient::getInstance();
 - bean.php为系统，连接池等配置，也包括一些swoole的配置，如每个环境不同，可根据config目录下的四个目录来配置，再在这个文件读取配置，达到不同环境配置不同的目的
 ## 15.注意事项
 - 所有发生io请求的地方，都会发生协程切换（包括发起http请求），这时注意保存io切换时的上下文，以便io切换回来时还原当前请求上下文（非常重要）
-- 上下文可以通过context()->set($key, $context)保存，context()->get($key)获取，$key尽量业务相关，防止与框架上下文$key相同
+- 上下文可以通过context()->set($key, $context)保存，context()->get($key)获取，$key尽量业务相关，防止与框架上下文$key相同，但使用完成后必须手动主动释放自己保存的上下文
+- 建议通过requestBean()->set($key, $context)保存, requestBean()->get($key)获取, 用这个方式保存的上下文不用手动释放，会随当前请求自动释放
 - 框架内需要手动创建协程必须使用sgo()创建（非常重要）
 ## 16.严禁使用
 - 禁止die()、exit()函数
@@ -110,6 +111,7 @@ $http = HttpClient::getInstance();
 - 启动容器：docker run -d --name $name -p $port1:80 -p $port2:22 -v $path:/var/www/swoft ccr.ccs.tencentyun.com/young/swoole-php:swoole4.4.2 启动容器
 > 其中，$name为你容器名称，$port1,$port2分别为你宿主机暴露的http端口和ssh端口，$path为你当前框架的完整目录
 - 通过ssh进入刚启动的容器，账号：root,密码：123456，进入容器后，执行命令：php /var/www/swoft/bin/swoft http:start启动即可
+- 或者使用框架内的 Dockerfile 自己构建镜像，然后启动即可使用
 # 补充
 ## 1.eureka sidecar
 - 基于swoft2.0.5+实现eureka sidecar，可将服务注册到eureka
